@@ -208,6 +208,91 @@ h1 {
     transition: all 0.5s ease;
 }
 
+.cta-group {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+#sequence-generator-btn {
+    border-color: #000;
+}
+
+#sequence-generator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+    /* Above everything */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1s ease;
+    overflow-y: auto;
+    /* Enable scrolling */
+    display: block;
+    /* Changed from flex to block to allow scrolling flow */
+}
+
+.generator-container {
+    width: 100%;
+    min-height: 100vh;
+}
+
+.generator-hero {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+#sequence-generator.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.generator-content {
+    text-align: center;
+    color: #ffffff;
+    z-index: 201;
+}
+
+.generator-content h1 {
+    font-family: var(--font-heading);
+    font-size: 4rem;
+    font-weight: 400;
+    margin-bottom: 0;
+    letter-spacing: 2px;
+    color: #ffffff;
+}
+
+.generator-content p {
+    display: none;
+    /* Hide subtext per user request for clean look */
+}
+
+.hidden {
+    display: none !important;
+}
+
+.white-btn {
+    border-color: #fff;
+    color: #fff;
+    margin-top: 2rem;
+}
+
+.white-btn:hover {
+    background-color: #fff;
+    color: #000;
+}
+
 .cta-button:hover {
     background-color: var(--color-text-hero);
     color: #ffffff;
@@ -429,129 +514,147 @@ h1 {
 }
 
 /* Responsive */
-/* Mobile Menu Toggle */
-.mobile-menu-toggle {
-    display: none;
-    flex-direction: column;
-    gap: 6px;
-    cursor: pointer;
-    z-index: 101;
-}
-
-.mobile-menu-toggle span {
-    width: 24px;
-    height: 1px;
-    background-color: var(--color-text-primary);
-    transition: all 0.3s ease;
-}
-
-/* Mobile Menu Active State (Hamburger Animation) */
-.mobile-menu-toggle.active span:nth-child(1) {
-    transform: rotate(45deg) translate(5px, 5px);
-}
-
-.mobile-menu-toggle.active span:nth-child(2) {
-    opacity: 0;
-}
-
-.mobile-menu-toggle.active span:nth-child(3) {
-    transform: rotate(-45deg) translate(5px, -5px);
-}
-
-/* Responsive */
 @media (max-width: 768px) {
     .navbar {
         padding: 1.5rem;
-    }
-
-    .brand-mark {
-        font-size: 1.2rem;
-        /* Smaller logo on mobile */
-    }
-
-    .mobile-menu-toggle {
-        display: flex;
-    }
-
-    .nav-links {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100vh;
-        background-color: var(--color-bg-hero);
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 2rem;
-        transform: translateY(-100%);
-        /* Start hidden above */
-        transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-        z-index: 99;
-        /* Reset opacity and transform from desktop entrance animation */
-        opacity: 1 !important;
-    }
-
-    .nav-links a {
-        margin-left: 0;
-        font-size: 1.5rem;
-        opacity: 0;
-        transform: translateY(20px);
-        transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-
-    .nav-links.open {
-        transform: translateY(0);
-        opacity: 1;
-        /* Ensure visible */
-    }
-
-    .nav-links.open a {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    /* Staggered text reveal for menu items */
-    .nav-links.open a:nth-child(1) {
-        transition-delay: 0.2s;
-    }
-
-    .nav-links.open a:nth-child(2) {
-        transition-delay: 0.3s;
-    }
-
-    .nav-links.open a:nth-child(3) {
-        transition-delay: 0.4s;
     }
 
     h1 {
         font-size: 2.5rem;
     }
 
-    .subtext {
-        font-size: 1rem;
-    }
-
-    .emotional-line {
-        font-size: 0.8rem;
-        letter-spacing: 1px;
-    }
-
-    #shop {
-        padding: 5rem 1.5rem;
-    }
-
-    .section-title {
-        font-size: 2rem;
-        margin-bottom: 3rem;
+    .nav-links {
+        display: none;
     }
 
     .product-grid {
         grid-template-columns: 1fr;
         gap: 3rem;
     }
+}
 
-    .product-card {
-        padding: 2rem 1.5rem;
-    }
+/* RESTORED GENERATOR STYLES */
+#generator-workspace {
+    min-height: 100vh;
+    width: 100%;
+    background-color: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 4rem 2rem;
+    color: #fff;
+}
+
+.workspace-content {
+    max-width: 1200px;
+    width: 100%;
+    text-align: center;
+    color: #fff;
+    /* Explicitly set text color */
+}
+
+.workspace-content h2 {
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 400;
+    color: #fff;
+}
+
+.workspace-sub {
+    color: #888;
+    margin-bottom: 3rem;
+}
+
+.white-btn-small {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.75rem;
+    border-color: #666;
+    /* Defined in clean up script, re-adding */
+    color: #ccc;
+    margin-right: 1rem;
+    background: transparent;
+    border: 1px solid #666;
+}
+
+.white-btn-small:hover {
+    border-color: #fff;
+    color: #fff;
+}
+
+.upload-area {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px dashed #444;
+    border-radius: 4px;
+    padding: 4rem 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 2rem;
+}
+
+.upload-area:hover {
+    border-color: #fff;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.upload-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    font-weight: 300;
+    color: #666;
+}
+
+/* Canvas Wrapper for Processing View */
+.canvas-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    /* Limit canvas size */
+    margin: 0 auto 2rem auto;
+    background: #fff;
+    overflow: hidden;
+    border-radius: 2px;
+    /* Square aesthetic */
+}
+
+/* Cropper Logic Styles - Restored */
+#cropper-container {
+    width: 100%;
+}
+
+.crop-overlay-guide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+    /* Darken area outside */
+    pointer-events: none;
+    border-radius: 0;
+    /* Square guide */
+}
+
+/* Ensure crop canvas is full size within wrapper */
+#crop-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: move;
+}
+
+.crop-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.instruction {
+    color: #888;
+    margin-top: 1rem;
+    font-size: 0.9rem;
 }

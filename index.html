@@ -12,6 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@300;400;500&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="string-art.css">
+    <link rel="stylesheet" href="gallery-animation.css">
 </head>
 
 <body>
@@ -27,11 +29,6 @@
             <a href="#">About</a>
             <a href="#">Contact</a>
         </div>
-        <div class="mobile-menu-toggle">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
     </nav>
 
     <!-- Hero Section -->
@@ -41,9 +38,96 @@
             <h1 class="fade-in">From Threads to Art</h1>
             <p class="subtext fade-in-delay">DIY Thread Art Kits</p>
             <p class="emotional-line fade-in-more-delay">Slow down. Create something lasting.</p>
-            <button id="enter-workshop-btn" class="cta-button fade-in-more-delay">Enter Workshop</button>
+            <div class="cta-group">
+                <button id="buy-now-btn" class="cta-button fade-in-more-delay">Buy Now</button>
+                <button id="sequence-generator-btn" class="cta-button fade-in-more-delay">Sequence Generator</button>
+            </div>
         </div>
     </section>
+
+    <!-- Sequence Generator Section (Hidden Initially) -->
+    <section id="sequence-generator" class="hidden">
+        <div class="generator-container">
+            <div class="generator-hero">
+                <div class="generator-content">
+                    <h1>Sequence Generator</h1>
+                    <button id="generate-now-btn" class="cta-button white-btn">Generate Now</button>
+                    <p>Configure your thread art.</p>
+                </div>
+            </div>
+
+            <div id="generator-workspace" class="hidden">
+                <div class="workspace-content">
+                    <h2>Upload Your Photo</h2>
+                    <p class="workspace-sub">Process your image into string art.</p>
+
+                    <div class="upload-area" id="upload-trigger">
+                        <div class="upload-icon">+</div>
+                        <p>Tap to upload image</p>
+                        <input type="file" id="image-upload" accept="image/*" hidden>
+                    </div>
+
+                    <div id="cropper-container" class="hidden">
+                        <div class="canvas-wrapper">
+                            <canvas id="crop-canvas"></canvas>
+                            <div class="crop-overlay-guide"></div>
+                        </div>
+                        <p class="instruction">Pinch or Scroll to Zoom • Drag to Move</p>
+                        <div class="crop-actions">
+                            <button id="crop-cancel-btn" class="cta-button white-btn-small">Cancel</button>
+                            <button id="crop-confirm-btn" class="cta-button white-btn">Confirm Crop</button>
+                        </div>
+                    </div>
+
+                    <div id="processing-view" class="hidden">
+                        <div class="string-art-container">
+                            <div class="generation-pair"
+                                style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; width: 100%;">
+                                <div class="canvas-wrapper">
+                                    <img id="source-image-display" src="" alt="Source"
+                                        style="width: 100%; height: auto; display: block;">
+                                </div>
+                                <div class="canvas-wrapper">
+                                    <canvas id="art-canvas" width="500" height="500" class="string-art-canvas"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="string-art-progress">
+                                <div id="progress-bar" class="string-art-progress-bar"></div>
+                            </div>
+
+                            <p id="status-text" class="instruction">Ready to generate.</p>
+
+                            <div class="string-art-controls">
+                                <select id="line-count-select" class="white-btn-small"
+                                    style="background: #000; margin-right: 1rem;">
+                                    <option value="2200">2200 Lines</option>
+                                    <option value="2500" selected>2500 Lines</option>
+                                    <option value="3000">3000 Lines</option>
+                                </select>
+                                <button id="btn-start-gen" class="cta-button white-btn-small">Start</button>
+                                <button id="btn-stop-gen" class="cta-button white-btn-small">Stop</button>
+                                <button id="btn-reset-gen" class="cta-button white-btn-small">New Image</button>
+                                <button id="btn-save-gallery" class="cta-button white-btn-small" disabled>Add to
+                                    Gallery</button>
+                            </div>
+
+                            <div id="gallery-container" class="hidden">
+                                <h3 style="font-family: var(--font-heading); margin-bottom: 2rem;">Your Gallery</h3>
+                                <div id="gallery-grid"
+                                    style="display: flex; flex-direction: column; gap: 2rem; max-width: 800px; margin: 0 auto;">
+                                    <!-- Gallery items will go here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- External Library -->
+    <script src="string-art-generator.js"></script>
 
     <!-- Shop Section -->
     <section id="shop">
