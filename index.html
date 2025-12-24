@@ -51,7 +51,11 @@
             <div class="generator-hero">
                 <div class="generator-content">
                     <h1>Sequence Generator</h1>
-                    <button id="generate-now-btn" class="cta-button white-btn">Generate Now</button>
+                    <button id="hero-reader-btn" class="cta-button white-btn-small"
+                        style="margin-right: 10px;">Reader</button>
+                    <button id="generate-now-btn" class="cta-button white-btn">Generate</button>
+                    <button id="view-gallery-btn" class="cta-button white-btn-small"
+                        style="margin-left: 10px;">Gallery</button>
                     <p>Configure your thread art.</p>
                 </div>
             </div>
@@ -106,17 +110,106 @@
                                     <option value="3000">3000 Lines</option>
                                 </select>
                                 <button id="btn-start-gen" class="cta-button white-btn-small">Start</button>
-                                <button id="btn-stop-gen" class="cta-button white-btn-small">Stop</button>
                                 <button id="btn-reset-gen" class="cta-button white-btn-small">New Image</button>
+                                <button id="btn-download-seq" class="cta-button white-btn-small" disabled>Download
+                                    Sequence</button>
                                 <button id="btn-save-gallery" class="cta-button white-btn-small" disabled>Add to
                                     Gallery</button>
+                                <button id="btn-view-gallery-internal" class="cta-button white-btn-small">View
+                                    Gallery</button>
+                                <button id="btn-go-reader" class="cta-button white-btn-small">Go to Reader</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="gallery-container" class="hidden">
+                        <h3 style="font-family: var(--font-heading); margin-bottom: 2rem;">Your Gallery</h3>
+                        <div id="gallery-grid"
+                            style="display: flex; flex-direction: column; gap: 2rem; max-width: 800px; margin: 0 auto;">
+                            <!-- Gallery items will go here -->
+                        </div>
+                    </div>
+
+                    <!-- READER VIEW -->
+                    <div id="reader-view" class="hidden">
+                        <div class="workspace-content" style="max-width: 600px; margin: 0 auto; text-align: center;">
+
+
+                            <!-- Option: Upload -->
+                            <div class="upload-area" id="reader-upload-trigger"
+                                style="padding: 2rem; margin-bottom: 2rem;">
+                                <div class="upload-icon" style="font-size: 2rem;">📄</div>
+                                <p>Upload .txt Sequence</p>
+                                <input type="file" id="reader-file-upload" accept=".txt" hidden>
                             </div>
 
-                            <div id="gallery-container" class="hidden">
-                                <h3 style="font-family: var(--font-heading); margin-bottom: 2rem;">Your Gallery</h3>
-                                <div id="gallery-grid"
-                                    style="display: flex; flex-direction: column; gap: 2rem; max-width: 800px; margin: 0 auto;">
-                                    <!-- Gallery items will go here -->
+                            <!-- Language Selection -->
+                            <div id="reader-language-select" class="hidden" style="margin-bottom: 2rem;">
+                                <h4 style="margin-bottom: 1.5rem; color: #fff; font-family: var(--font-heading);">Select
+                                    Language</h4>
+                                <!-- Language Selection -->
+                                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                                    <button class="cta-button white-btn-small lang-btn" data-lang="en-US"
+                                        style="min-width: 100px;">English</button>
+                                    <button class="cta-button white-btn-small lang-btn" data-lang="te-IN"
+                                        style="min-width: 100px; opacity: 0.5; cursor: not-allowed;"
+                                        title="Coming Soon">Telugu</button>
+                                    <button class="cta-button white-btn-small lang-btn" data-lang="hi-IN"
+                                        style="min-width: 100px; opacity: 0.5; cursor: not-allowed;"
+                                        title="Coming Soon">Hindi</button>
+                                    <button class="cta-button white-btn-small lang-btn" data-lang="ta-IN"
+                                        style="min-width: 100px; opacity: 0.5; cursor: not-allowed;"
+                                        title="Coming Soon">Tamil</button>
+                                </div>
+                            </div>
+
+                            <!-- Reader Interface -->
+                            <div id="reader-interface" class="hidden"
+                                style="background: linear-gradient(145deg, #111, #0a0a0a); border: 1px solid #333; border-radius: 16px; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top: 2rem;">
+                                <!-- Visualization Canvas -->
+                                <h2
+                                    style="color: #fff; font-family: var(--font-heading); font-size: 2.5rem; margin: 0 0 2rem 0; letter-spacing: 2px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 1rem;">
+                                    Sequence Reader</h2>
+                                <div style="margin-bottom: 2rem; display: flex; justify-content: center;">
+                                    <canvas id="reader-canvas" width="350" height="350"
+                                        style="border: 1px solid #ccc; border-radius: 4px; background: #fff; box-shadow: 0 0 20px rgba(0,0,0,0.1);">
+                                    </canvas>
+                                </div>
+
+                                <div style="margin-bottom: 2rem;">
+                                    <span style="font-size: 4rem; font-family: var(--font-heading); display: block;"
+                                        id="reader-pin-display">--</span>
+                                    <div
+                                        style="color: #666; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">
+                                        Current Pin</div>
+                                </div>
+
+                                <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 2rem;">
+                                    <button id="reader-prev" class="cta-button white-btn-small">Prev</button>
+                                    <button id="reader-play" class="cta-button white-btn-small">Play</button>
+                                    <button id="reader-next" class="cta-button white-btn-small">Next</button>
+                                </div>
+
+                                <div
+                                    style="display: flex; gap: 10px; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
+                                    <span style="font-size: 0.8rem; color: #888;">Speed:</span>
+                                    <input type="range" id="reader-speed" min="0.35" max="3" step="0.05" value="0.65"
+                                        style="accent-color: #fff;">
+                                    <span id="reader-speed-val" style="font-size: 0.8rem; color: #888;">0.65x</span>
+                                </div>
+
+                                <!-- Jump to Step -->
+                                <div
+                                    style="display: flex; gap: 10px; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                                    <input type="number" id="reader-jump-input" placeholder="Step"
+                                        style="background: #111; border: 1px solid #333; color: white; padding: 5px; border-radius: 4px; width: 60px; text-align: center;">
+                                    <button id="reader-jump-btn" class="cta-button white-btn-small"
+                                        style="padding: 5px 10px; font-size: 0.8rem;">Go</button>
+                                </div>
+
+                                <div style="margin-top: 1rem;">
+                                    <span id="reader-step-status" style="color: #666; font-size: 0.8rem;">Step 0 /
+                                        0</span>
                                 </div>
                             </div>
                         </div>

@@ -383,6 +383,24 @@ document.addEventListener('DOMContentLoaded', () => {
         generateNowBtn.addEventListener('click', () => {
             if (generatorWorkspace) {
                 generatorWorkspace.classList.remove('hidden');
+
+                // Reset views to ensure "Upload a picture" is the destination
+                const uploadTrigger = document.getElementById('upload-trigger');
+                const cropperContainer = document.getElementById('cropper-container');
+                const processingView = document.getElementById('processing-view');
+                const galleryContainer = document.getElementById('gallery-container');
+
+                if (uploadTrigger) uploadTrigger.classList.remove('hidden');
+                if (cropperContainer) cropperContainer.classList.add('hidden');
+                if (processingView) processingView.classList.add('hidden');
+                if (galleryContainer) galleryContainer.classList.add('hidden');
+
+                // Reset Text
+                const workspaceHeader = document.querySelector('#generator-workspace h2');
+                const workspaceSub = document.querySelector('#generator-workspace .workspace-sub');
+                if (workspaceHeader) workspaceHeader.innerText = "Upload Your Photo";
+                if (workspaceSub) workspaceSub.innerText = "Process your image into string art.";
+
                 setTimeout(() => {
                     generatorWorkspace.scrollIntoView({ behavior: 'smooth' });
                 }, 10);
@@ -640,6 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         statusText.innerText = "Complete!";
                         btnStart.disabled = false;
                         if (btnSaveGallery) btnSaveGallery.disabled = false;
+                        if (document.getElementById('btn-download-seq')) document.getElementById('btn-download-seq').disabled = false;
                         return;
                     }
 
@@ -665,12 +684,70 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        if (btnStop) {
-            btnStop.addEventListener('click', () => {
-                isGenerating = false;
-                statusText.innerText = "Stopped.";
-                btnStart.disabled = false;
-                if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        // Download Sequence
+        const btnDownloadSeq = document.getElementById('btn-download-seq');
+        if (btnDownloadSeq) {
+            btnDownloadSeq.addEventListener('click', () => {
+                if (!generatorEngine || !generatorEngine.sequence) return;
+                const seq = generatorEngine.sequence.map(n => n + 1);
+                const text = seq.join(', ');
+                const blob = new Blob([text], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `string_art_sequence_${Date.now()}.txt`;
+                a.click();
+            });
+        }
+
+        // Go to Reader
+        const btnGoReader = document.getElementById('btn-go-reader');
+        const readerView = document.getElementById('reader-view');
+
+        if (btnGoReader && readerView) {
+            btnGoReader.addEventListener('click', () => {
+                // Switch Views
+                processingView.classList.add('hidden');
+                galleryContainer.classList.add('hidden');
+                readerView.classList.remove('hidden');
+
+                // Hide Main Headers for Cleaner Look
+                const workspaceHeader = document.querySelector('#generator-workspace h2');
+                const workspaceSub = document.querySelector('#generator-workspace .workspace-sub');
+                if (workspaceHeader) workspaceHeader.style.display = 'none';
+                if (workspaceSub) workspaceSub.style.display = 'none';
+
+                // Initialize Reader
+                initReader();
+            });
+        }
+
+        const btnHeroReader = document.getElementById('hero-reader-btn');
+        if (btnHeroReader && readerView) {
+            btnHeroReader.addEventListener('click', () => {
+                // Ensure generator workspace is shown
+                if (generatorWorkspace) generatorWorkspace.classList.remove('hidden');
+
+                // Hide other main views including Upload
+                uploadTrigger.classList.add('hidden');
+                cropperContainer.classList.add('hidden');
+                processingView.classList.add('hidden');
+                galleryContainer.classList.add('hidden');
+
+                // Show Reader
+                readerView.classList.remove('hidden');
+
+                // Hide Main Headers for Cleaner Look
+                const workspaceHeader = document.querySelector('#generator-workspace h2');
+                const workspaceSub = document.querySelector('#generator-workspace .workspace-sub');
+                if (workspaceHeader) workspaceHeader.style.display = 'none';
+                if (workspaceSub) workspaceSub.style.display = 'none';
+
+                // Scroll to workspace
+                generatorWorkspace.scrollIntoView({ behavior: 'smooth' });
+
+                // Initialize Reader
+                initReader();
             });
         }
 
@@ -689,8 +766,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Reset Headers
                 const workspaceHeader = document.querySelector('#generator-workspace h2');
                 const workspaceSub = document.querySelector('#generator-workspace .workspace-sub');
-                if (workspaceHeader) workspaceHeader.innerText = "Upload Your Photo";
-                if (workspaceSub) workspaceSub.innerText = "Process your image into string art.";
+                if (workspaceHeader) {
+                    workspaceHeader.innerText = "Upload Your Photo";
+                    workspaceHeader.style.display = 'block';
+                }
+                if (workspaceSub) {
+                    workspaceSub.innerText = "Process your image into string art.";
+                    workspaceSub.style.display = 'block';
+                }
 
                 imageInput.value = '';
                 btnStart.disabled = false;
@@ -722,12 +805,15 @@ document.addEventListener('DOMContentLoaded', () => {
             // Force limit if exceeded (e.g. from previous versions)
             if (saved.length > 3) {
                 saved = saved.slice(saved.length - 3);
-                localStorage.setItem('stringArtGallery', JSON.stringify(saved));
             }
+
+            // Always persist the cleaned/migrated list
+            localStorage.setItem('stringArtGallery', JSON.stringify(saved));
+
+            galleryGrid.innerHTML = '';
 
             if (saved.length > 0) {
                 galleryContainer.classList.remove('hidden');
-                galleryGrid.innerHTML = '';
 
                 // Show newest first
                 [...saved].reverse().forEach(item => {
@@ -742,11 +828,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #555; background: #000; font-size: 0.9rem;">No Source</div>`;
 
                     div.innerHTML = `
-                        <div style="display: flex; gap: 10px; margin-bottom: 12px;">
-                            <div style="flex: 1; aspect-ratio: 1; overflow: hidden; border-radius: 4px; background: #000;">
+                        <div class="gallery-click-area" data-id="${item.id}" style="display: flex; gap: 10px; margin-bottom: 12px; cursor: pointer;">
+                            <div style="flex: 1; aspect-ratio: 1; overflow: hidden; border-radius: 4px; background: #000; pointer-events: none;">
                                 ${sourceDisplay}
                             </div>
-                             <div style="flex: 1; aspect-ratio: 1; overflow: hidden; border-radius: 4px; background: #000;">
+                             <div style="flex: 1; aspect-ratio: 1; overflow: hidden; border-radius: 4px; background: #000; pointer-events: none;">
                                 <img src="${item.artData}" style="width: 100%; height: 100%; object-fit: cover;" title="String Art">
                             </div>
                         </div>
@@ -766,7 +852,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     galleryGrid.appendChild(div);
                 });
             } else {
-                galleryContainer.classList.add('hidden');
+                galleryGrid.innerHTML = '<div style="text-align: center; width: 100%; color: #888; padding: 2rem 0;">No items in gallery.</div>';
             }
         };
 
@@ -805,14 +891,517 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (galleryGrid) {
             galleryGrid.addEventListener('click', (e) => {
+                // Handle Delete
                 if (e.target.classList.contains('gallery-delete-btn')) {
                     const id = Number(e.target.dataset.id);
                     if (confirm("Permanently delete this item?")) {
                         deleteGalleryItem(id);
                     }
+                    return;
+                }
+
+                // Handle Load Item (Click on image area)
+                const clickArea = e.target.closest('.gallery-click-area');
+                if (clickArea) {
+                    const id = Number(clickArea.dataset.id);
+                    const saved = JSON.parse(localStorage.getItem('stringArtGallery') || '[]');
+                    const item = saved.find(i => i.id === id);
+
+                    if (item && generatorWorkspace) {
+                        // Switch Views
+                        galleryContainer.classList.add('hidden');
+                        processingView.classList.remove('hidden');
+
+                        // Load Data
+                        const artCanvas = document.getElementById('art-canvas');
+                        const ctx = artCanvas.getContext('2d');
+                        const sourceDisplay = document.getElementById('source-image-display');
+                        const statusText = document.getElementById('status-text');
+
+                        // Clear and Draw Art
+                        const artImg = new Image();
+                        artImg.onload = () => {
+                            ctx.clearRect(0, 0, artCanvas.width, artCanvas.height);
+                            ctx.fillStyle = '#ffffff';
+                            ctx.fillRect(0, 0, artCanvas.width, artCanvas.height);
+                            ctx.drawImage(artImg, 0, 0, artCanvas.width, artCanvas.height);
+                        };
+                        artImg.src = item.artData;
+
+                        // Load Source
+                        if (item.sourceData) {
+                            if (sourceDisplay) sourceDisplay.src = item.sourceData;
+
+                            // Rehydrate Engine for regeneration capability
+                            if (typeof StringArtGenerator !== 'undefined') {
+                                const sourceImg = new Image();
+                                sourceImg.onload = () => {
+                                    // Make a temp canvas to load into engine
+                                    const tempCanvas = document.createElement('canvas');
+                                    tempCanvas.width = 500;
+                                    tempCanvas.height = 500;
+                                    const tCtx = tempCanvas.getContext('2d');
+                                    tCtx.fillStyle = '#fff';
+                                    tCtx.fillRect(0, 0, 500, 500);
+                                    tCtx.drawImage(sourceImg, 0, 0, 500, 500);
+
+                                    // Init Engine
+                                    generatorEngine = new StringArtGenerator(500, 500);
+                                    generatorEngine.loadFromElement(tempCanvas);
+
+                                    // Cache for reset
+                                    window.sourceCanvasCache = tempCanvas;
+                                };
+                                sourceImg.src = item.sourceData;
+                            }
+                        }
+
+                        // UI Updates
+                        if (statusText) statusText.innerText = "Loaded from Gallery";
+
+                        // Reset Headers
+                        const workspaceHeader = document.querySelector('#generator-workspace h2');
+                        const workspaceSub = document.querySelector('#generator-workspace .workspace-sub');
+                        if (workspaceHeader) {
+                            workspaceHeader.innerText = "Generator Ready";
+                            workspaceHeader.style.display = 'block';
+                        }
+                        if (workspaceSub) {
+                            workspaceSub.innerText = "View or regenerate your art.";
+                            workspaceSub.style.display = 'block';
+                        }
+
+                        // Scroll up
+                        generatorWorkspace.scrollIntoView({ behavior: 'smooth' });
+                    }
                 }
             });
         }
+
+
+
+        const btnViewGalleryInternal = document.getElementById('btn-view-gallery-internal');
+        const handleViewGallery = () => {
+            // Ensure generator workspace is visible
+            if (generatorWorkspace) generatorWorkspace.classList.remove('hidden');
+
+            // Hide other main views
+            uploadTrigger.classList.add('hidden');
+            cropperContainer.classList.add('hidden');
+            processingView.classList.add('hidden');
+
+            // Show Gallery
+            galleryContainer.classList.remove('hidden');
+            renderGallery(); // Ensure content is updated
+
+            setTimeout(() => {
+                galleryContainer.scrollIntoView({ behavior: 'smooth' });
+            }, 10);
+
+            // Also update header to indicate Gallery View? Optional.
+            const workspaceHeader = document.querySelector('#generator-workspace h2');
+            const workspaceSub = document.querySelector('#generator-workspace .workspace-sub');
+            if (workspaceHeader) {
+                workspaceHeader.innerText = "Gallery";
+                workspaceHeader.style.display = 'block';
+            }
+            if (workspaceSub) {
+                workspaceSub.innerText = "Your saved designs.";
+                workspaceSub.style.display = 'block';
+            }
+        };
+
+        const viewGalleryBtn = document.getElementById('view-gallery-btn');
+        if (viewGalleryBtn) {
+            viewGalleryBtn.addEventListener('click', handleViewGallery);
+        }
+        if (btnViewGalleryInternal) {
+            btnViewGalleryInternal.addEventListener('click', handleViewGallery);
+        }
+
+        // --- READER LOGIC ---
+        let readerSequence = [];
+        let readerStep = 0;
+        let readerPlaying = false;
+        let readerInterval = null;
+        let speechUtterance = null;
+
+        function initReader() {
+            // Reset UI if needed
+        }
+
+        let readerTempSequenceText = null;
+        let readerLanguage = 'en-US';
+
+        const readerFileUpload = document.getElementById('reader-file-upload');
+        const readerUploadTrigger = document.getElementById('reader-upload-trigger');
+        const readerInterface = document.getElementById('reader-interface');
+        const readerLangSelect = document.getElementById('reader-language-select');
+
+        if (readerUploadTrigger && readerFileUpload) {
+            readerUploadTrigger.addEventListener('click', () => readerFileUpload.click());
+            readerFileUpload.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    readerTempSequenceText = evt.target.result;
+                    // Show Language Select
+                    readerUploadTrigger.classList.add('hidden');
+                    if (readerLangSelect) readerLangSelect.classList.remove('hidden');
+                };
+                reader.readAsText(file);
+            });
+        }
+
+        // Language Buttons
+        const langBtns = document.querySelectorAll('.lang-btn');
+        langBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const selectedLang = e.target.dataset.lang;
+                if (selectedLang !== 'en-US') {
+                    alert('Still in Beta');
+                    return; // Do not proceed
+                }
+
+                readerLanguage = 'en-US';
+                if (readerTempSequenceText && readerLangSelect) {
+                    readerLangSelect.classList.add('hidden');
+                    loadReaderSequence(readerTempSequenceText);
+                }
+            });
+        });
+
+        let readerPins = [];
+
+        function initReaderPins(numPins = 200) {
+            readerPins = [];
+            const rCanvas = document.getElementById('reader-canvas');
+            if (!rCanvas) return;
+            const width = rCanvas.width;
+            const height = rCanvas.height;
+            const margin = 30;
+
+            // Square Logic: Top -> Right -> Bottom -> Left
+            // Pin 1 (Index 0) at Top-Left (margin, margin)
+
+            const w = width - 2 * margin;
+            const h = height - 2 * margin;
+            const x0 = margin;
+            const y0 = margin;
+            const perimeter = 2 * (w + h);
+            const step = perimeter / numPins;
+
+            for (let i = 0; i < numPins; i++) {
+                let d = (i * step) % perimeter;
+                let x, y;
+
+                if (d < w) { // Top Edge
+                    x = x0 + d;
+                    y = y0;
+                } else if (d < w + h) { // Right Edge
+                    x = x0 + w;
+                    y = y0 + (d - w);
+                } else if (d < 2 * w + h) { // Bottom Edge
+                    x = x0 + w - (d - (w + h));
+                    y = y0 + h;
+                } else { // Left Edge
+                    x = x0;
+                    y = y0 + h - (d - (2 * w + h));
+                }
+                readerPins.push({ x, y });
+            }
+        }
+
+        function drawReaderCanvas(limitStep = null) {
+            const rCanvas = document.getElementById('reader-canvas');
+            if (!rCanvas || readerPins.length === 0) return;
+            const ctx = rCanvas.getContext('2d');
+            ctx.clearRect(0, 0, rCanvas.width, rCanvas.height);
+
+            // Determine drawing limit
+            // If limitStep provided, use it. Else use global readerStep.
+            const drawUntilIndex = (limitStep !== null) ? limitStep : readerStep;
+
+            // Draw Pins
+            const pinCount = readerPins.length;
+            readerPins.forEach((p, i) => {
+                ctx.beginPath();
+                // 1-based index for logic: (i+1)
+                // Mark 1, 10, 20... which corresponds to i=0, i=9, i=19...
+                // Only mark every 10th (10, 20..) and also 1.
+                // i+1 % 10 === 0 means 10, 20...
+                // i === 0 means 1.
+
+                const isMarker = (i === 0) || ((i + 1) % 10 === 0);
+
+                if (isMarker) {
+                    ctx.fillStyle = '#ff0000'; // Red markers
+                    ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+                } else {
+                    ctx.fillStyle = '#ccc'; // Light gray non-markers
+                    ctx.arc(p.x, p.y, 1, 0, Math.PI * 2);
+                }
+                ctx.fill();
+
+                // Add labels for key pins (1, 10, 20...)
+                if ((i === 0) || ((i + 1) % 10 === 0)) {
+                    ctx.fillStyle = '#666';
+                    ctx.font = '9px Arial';
+
+                    // Calculate direction from center to place label outside
+                    const cx = rCanvas.width / 2;
+                    const cy = rCanvas.height / 2;
+                    const dx = p.x - cx;
+                    const dy = p.y - cy;
+                    // Normalize
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const nx = dx / dist;
+                    const ny = dy / dist;
+
+                    // Shift text out by ~10px
+                    const textX = p.x + nx * 12;
+                    const textY = p.y + ny * 12;
+
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText((i + 1).toString(), textX, textY);
+                }
+            });
+
+            // Draw Lines
+            if (readerSequence.length > 0) {
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)'; // Black strings
+                ctx.lineWidth = 0.5;
+
+                // Draw all history
+                // Note: sequence is 1-based pin numbers. Adjust to 0-based for array index.
+                const currentSeq = readerSequence.slice(0, drawUntilIndex + 1);
+
+                if (currentSeq.length > 1) {
+                    const firstPinIdx = currentSeq[0] - 1;
+                    if (readerPins[firstPinIdx]) {
+                        ctx.moveTo(readerPins[firstPinIdx].x, readerPins[firstPinIdx].y);
+                    }
+
+                    for (let i = 1; i < currentSeq.length; i++) {
+                        const pIdx = currentSeq[i] - 1;
+                        if (readerPins[pIdx]) {
+                            ctx.lineTo(readerPins[pIdx].x, readerPins[pIdx].y);
+                        }
+                    }
+                }
+                ctx.stroke();
+
+                // Highlight Current Line
+                if (drawUntilIndex > 0) {
+                    const prevPinIdx = readerSequence[drawUntilIndex - 1] - 1;
+                    const currPinIdx = readerSequence[drawUntilIndex] - 1;
+                    if (readerPins[prevPinIdx] && readerPins[currPinIdx]) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = '#00ffcc'; // Highlight color
+                        ctx.lineWidth = 2;
+                        ctx.moveTo(readerPins[prevPinIdx].x, readerPins[prevPinIdx].y);
+                        ctx.lineTo(readerPins[currPinIdx].x, readerPins[currPinIdx].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function loadReaderSequence(text) {
+            // Parse CSV
+            readerSequence = text.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
+
+            if (readerSequence.length > 0) {
+                readerUploadTrigger.classList.add('hidden');
+                readerInterface.classList.remove('hidden');
+
+                // Init Visualization (Assume 200 for now or max in sequence?)
+                // Heuristic: If max pin > 200, use 288 or max.
+                const maxPin = Math.max(...readerSequence);
+                const pinCount = maxPin > 200 ? Math.max(maxPin, 288) : 200;
+                initReaderPins(pinCount);
+
+                readerStep = 0;
+                updateReaderUI();
+            } else {
+                alert("Invalid sequence file.");
+            }
+        }
+
+        let readerCurrentAudio = null;
+        let readerTimeout = null;
+
+        function updateReaderUI(shouldSpeak = false) {
+            const pinDisplay = document.getElementById('reader-pin-display');
+            const stepStatus = document.getElementById('reader-step-status');
+
+            if (readerStep < readerSequence.length) {
+                const pin = readerSequence[readerStep];
+
+                // MANUAL MODE: Update immediately
+                if (!readerPlaying) {
+                    if (pinDisplay) {
+                        pinDisplay.innerText = pin;
+                        pinDisplay.style.opacity = '1';
+                    }
+                    if (stepStatus) stepStatus.innerText = `Step ${readerStep + 1} / ${readerSequence.length}`;
+                    drawReaderCanvas(readerStep);
+                }
+                // PLAY MODE: Defer updates to processStepAudio to match voice
+                else if (shouldSpeak) {
+                    // Just trigger the audio load, visuals will update in callback
+                    processStepAudio(pin, readerStep);
+                }
+            } else {
+                if (stepStatus) stepStatus.innerText = "Done!";
+                stopReading();
+            }
+        }
+
+        function processStepAudio(pin, contextStepIndex) {
+            // Do NOT update innerText yet to avoid jumping ahead visually
+            document.getElementById('reader-pin-display').style.opacity = '0.5';
+
+            // Cancel prev
+            window.speechSynthesis.cancel();
+
+            const stepNum = contextStepIndex + 1;
+            const textToRead = `Step ${stepNum}, ${pin}`;
+
+            // Offline / System TTS Only
+            const utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance.lang = 'en-US'; // Force English
+            const speed = parseFloat(document.getElementById('reader-speed').value) || 1.0;
+            utterance.rate = speed;
+
+            utterance.onstart = () => {
+                if (!readerPlaying) {
+                    window.speechSynthesis.cancel();
+                    return;
+                }
+
+                // Audio Started -> Update Visuals (SYNCED HERE)
+                const pDisplay = document.getElementById('reader-pin-display');
+                if (pDisplay) {
+                    pDisplay.innerText = pin;
+                    pDisplay.style.opacity = '1';
+                }
+
+                const sStatus = document.getElementById('reader-step-status');
+                if (sStatus) {
+                    sStatus.innerText = `Step ${contextStepIndex + 1} / ${readerSequence.length}`;
+                }
+
+                drawReaderCanvas(contextStepIndex);
+            };
+
+            utterance.onend = () => {
+                scheduleNextStep();
+            };
+
+            utterance.onerror = (e) => {
+                console.error("System TTS Error", e);
+                // Even if error, try to move on?
+                scheduleNextStep();
+            };
+
+            // Speak
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function scheduleNextStep() {
+            if (!readerPlaying) return;
+            // Calculate delay based on speed? Or fixed gap?
+            // Fixed gap of 500ms sounds natural
+            readerTimeout = setTimeout(() => {
+                if (readerStep < readerSequence.length - 1) {
+                    readerStep++;
+                    updateReaderUI(true); // Trigger next speak
+                } else {
+                    stopReading();
+                }
+            }, 500);
+        }
+
+        function stopReading() {
+            readerPlaying = false;
+            clearTimeout(readerTimeout);
+
+            const btnPlay = document.getElementById('reader-play');
+            if (btnPlay) btnPlay.innerText = "Play";
+
+            document.getElementById('reader-pin-display').style.opacity = '1';
+        }
+
+        const btnReaderPrev = document.getElementById('reader-prev');
+        const btnReaderNext = document.getElementById('reader-next');
+        const btnReaderPlay = document.getElementById('reader-play');
+
+        if (btnReaderPrev) {
+            btnReaderPrev.addEventListener('click', () => {
+                stopReading();
+                if (readerStep > 0) {
+                    readerStep--;
+                    updateReaderUI(false);
+                }
+            });
+        }
+
+        if (btnReaderNext) {
+            btnReaderNext.addEventListener('click', () => {
+                stopReading();
+                if (readerStep < readerSequence.length - 1) {
+                    readerStep++;
+                    updateReaderUI(false);
+                }
+            });
+        }
+
+        if (btnReaderPlay) {
+            btnReaderPlay.addEventListener('click', () => {
+                if (readerPlaying) {
+                    stopReading();
+                } else {
+                    readerPlaying = true;
+                    btnReaderPlay.innerText = "Pause";
+                    updateReaderUI(true); // Start Loop
+                }
+            });
+        }
+
+        const sliderSpeed = document.getElementById('reader-speed');
+        if (sliderSpeed) {
+            sliderSpeed.addEventListener('input', (e) => {
+                document.getElementById('reader-speed-val').innerText = e.target.value + 'x';
+                if (readerPlaying) {
+                    // Restart with new speed
+                    stopReading();
+                    // Optionally auto-restart, but stop is safer to avoid confusion
+                }
+            });
+        }
+
+        const btnJump = document.getElementById('reader-jump-btn');
+        const inputJump = document.getElementById('reader-jump-input');
+
+        if (btnJump && inputJump) {
+            btnJump.addEventListener('click', () => {
+                const val = parseInt(inputJump.value);
+                if (!isNaN(val) && val >= 1 && val <= readerSequence.length) {
+                    stopReading();
+                    readerStep = val - 1;
+                    updateReaderUI(false);
+                    inputJump.value = '';
+                } else {
+                    alert(`Please enter a step between 1 and ${readerSequence.length}`);
+                }
+            });
+        }
+
 
         // Initial render
         renderGallery();
