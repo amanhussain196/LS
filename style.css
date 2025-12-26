@@ -582,21 +582,72 @@ h1 {
     color: #fff;
 }
 
+/* Main Interface Card */
+.interface-card,
+.one-page-section {
+    max-width: 650px;
+    width: 100%;
+    margin: 0 auto;
+    /* Box Styling */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    /* Animated Gradient Background from Gallery */
+    background: linear-gradient(-45deg, #111, #1a1a1a, #0d0d0d, #161616);
+    background-size: 400% 400%;
+    animation: subtleThreadFlow 15s ease infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Thread overlay for interface card */
+.interface-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: repeating-linear-gradient(45deg,
+            transparent,
+            transparent 10px,
+            rgba(255, 255, 255, 0.03) 10px,
+            rgba(255, 255, 255, 0.03) 11px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Ensure content is above background */
+.interface-card>* {
+    position: relative;
+    z-index: 1;
+}
+
 .upload-area {
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-    border: 1px dashed #444;
-    border-radius: 4px;
-    padding: 4rem 2rem;
+    width: 100%;
+    /* Simplified Interior Styling */
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 3rem 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
     margin-bottom: 2rem;
+    background: transparent;
+    box-shadow: none;
+
+    /* Flex alignment */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .upload-area:hover {
-    border-color: #fff;
-    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.6);
+    background-color: rgba(255, 255, 255, 0.02);
+    transform: none;
+    box-shadow: none;
 }
 
 .upload-icon {
@@ -644,6 +695,8 @@ h1 {
     height: 100%;
     display: block;
     cursor: move;
+    /* Disable browser handling of gestures */
+    touch-action: none;
 }
 
 .crop-actions {
@@ -657,119 +710,177 @@ h1 {
     color: #888;
     margin-top: 1rem;
     font-size: 0.9rem;
-}/ *   R e a d e r   I n t e r f a c e   S t y l e s   * /  
- . r e a d e r - c a r d   {  
-         b a c k g r o u n d :   l i n e a r - g r a d i e n t ( 1 4 5 d e g ,   # 1 1 1 ,   # 0 a 0 a 0 a ) ;  
-         b o r d e r :   1 p x   s o l i d   # 3 3 3 ;  
-         b o r d e r - r a d i u s :   1 6 p x ;  
-         p a d d i n g :   2 r e m ;  
-         b o x - s h a d o w :   0   1 0 p x   3 0 p x   r g b a ( 0 ,   0 ,   0 ,   0 . 5 ) ;  
-         m a r g i n - t o p :   2 r e m ;  
-         w i d t h :   1 0 0 % ;  
-         m a x - w i d t h :   5 0 0 p x ;  
-         / *   L i m i t   w i d t h   o n   d e s k t o p   * /  
-         m a r g i n - l e f t :   a u t o ;  
-         m a r g i n - r i g h t :   a u t o ;  
- }  
-  
- . r e a d e r - t i t l e   {  
-         c o l o r :   # f f f ;  
-         f o n t - f a m i l y :   v a r ( - - f o n t - h e a d i n g ) ;  
-         f o n t - s i z e :   2 . 5 r e m ;  
-         m a r g i n :   0   0   2 r e m   0 ;  
-         l e t t e r - s p a c i n g :   2 p x ;  
-         t e x t - t r a n s f o r m :   u p p e r c a s e ;  
-         b o r d e r - b o t t o m :   1 p x   s o l i d   # 3 3 3 ;  
-         p a d d i n g - b o t t o m :   1 r e m ;  
-         t e x t - a l i g n :   c e n t e r ;  
- }  
-  
- . r e a d e r - c a n v a s - c o n t a i n e r   {  
-         m a r g i n - b o t t o m :   2 r e m ;  
-         d i s p l a y :   f l e x ;  
-         j u s t i f y - c o n t e n t :   c e n t e r ;  
-         w i d t h :   1 0 0 % ;  
- }  
-  
- # r e a d e r - c a n v a s   {  
-         b o r d e r :   1 p x   s o l i d   # c c c ;  
-         b o r d e r - r a d i u s :   4 p x ;  
-         b a c k g r o u n d :   # f f f ;  
-         b o x - s h a d o w :   0   0   2 0 p x   r g b a ( 0 ,   0 ,   0 ,   0 . 1 ) ;  
-         m a x - w i d t h :   1 0 0 % ;  
-         / *   R e s p o n s i v e   * /  
-         h e i g h t :   a u t o   ! i m p o r t a n t ;  
-         / *   P r e s e r v e s   a s p e c t   r a t i o   * /  
- }  
-  
- . r e a d e r - c o n t r o l s - r o w   {  
-         d i s p l a y :   f l e x ;  
-         g a p :   1 0 p x ;  
-         j u s t i f y - c o n t e n t :   c e n t e r ;  
-         m a r g i n - b o t t o m :   2 r e m ;  
-         f l e x - w r a p :   w r a p ;  
- }  
-  
- . r e a d e r - i n f o - b l o c k   {  
-         m a r g i n - b o t t o m :   2 r e m ;  
-         t e x t - a l i g n :   c e n t e r ;  
- }  
-  
- . r e a d e r - p i n - b i g   {  
-         f o n t - s i z e :   4 r e m ;  
-         f o n t - f a m i l y :   v a r ( - - f o n t - h e a d i n g ) ;  
-         d i s p l a y :   b l o c k ;  
-         c o l o r :   # f f f ;  
- }  
-  
- . r e a d e r - l a b e l - s m a l l   {  
-         c o l o r :   # 6 6 6 ;  
-         f o n t - s i z e :   0 . 9 r e m ;  
-         t e x t - t r a n s f o r m :   u p p e r c a s e ;  
-         l e t t e r - s p a c i n g :   1 p x ;  
- }  
-  
- . r e a d e r - s l i d e r - r o w   {  
-         d i s p l a y :   f l e x ;  
-         g a p :   1 0 p x ;  
-         a l i g n - i t e m s :   c e n t e r ;  
-         j u s t i f y - c o n t e n t :   c e n t e r ;  
-         m a r g i n - b o t t o m :   0 . 5 r e m ;  
-         f l e x - w r a p :   w r a p ;  
- }  
-  
- / *   M o b i l e   T w e a k s   * /  
- @ m e d i a   ( m a x - w i d t h :   6 0 0 p x )   {  
-         . r e a d e r - c a r d   {  
-                 p a d d i n g :   1 r e m ;  
-                 b o r d e r - r a d i u s :   1 2 p x ;  
-                 m a r g i n - t o p :   1 r e m ;  
-         }  
-  
-         . r e a d e r - t i t l e   {  
-                 f o n t - s i z e :   1 . 5 r e m ;  
-                 m a r g i n - b o t t o m :   1 . 5 r e m ;  
-         }  
-  
-         . r e a d e r - p i n - b i g   {  
-                 f o n t - s i z e :   3 r e m ;  
-         }  
-  
-         . w h i t e - b t n - s m a l l   {  
-                 p a d d i n g :   0 . 6 r e m   1 r e m ;  
-                 f o n t - s i z e :   0 . 7 r e m ;  
-                 m i n - w i d t h :   u n s e t   ! i m p o r t a n t ;  
-                 / *   O v e r r i d e   i n l i n e   m i n - w i d t h   * /  
-         }  
-  
-         . l a n g - b t n   {  
-                 m i n - w i d t h :   8 0 p x   ! i m p o r t a n t ;  
-         }  
-  
-         / *   M a k e   c a n v a s   f u l l y   r e s p o n s i v e   * /  
-         # r e a d e r - c a n v a s   {  
-                 w i d t h :   1 0 0 % ;  
-                 h e i g h t :   a u t o ;  
-         }  
- }  
- 
+}
+
+/* Reader Interface Styles */
+.reader-card {
+    background: linear-gradient(145deg, #111, #0a0a0a);
+    border: 1px solid #333;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    margin-top: 2rem;
+    width: 100%;
+    max-width: 500px;
+    /* Limit width on desktop */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.reader-title {
+    color: #fff;
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    margin: 0 0 2rem 0;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-bottom: 1px solid #333;
+    padding-bottom: 1rem;
+    text-align: center;
+}
+
+.reader-canvas-container {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+#reader-canvas {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
+    /* Responsive */
+    height: auto !important;
+    /* Preserves aspect ratio */
+}
+
+.reader-controls-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.reader-info-block {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.reader-pin-big {
+    font-size: 4rem;
+    font-family: var(--font-heading);
+    display: block;
+    color: #fff;
+}
+
+.reader-label-small {
+    color: #666;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.reader-slider-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Mobile Tweaks */
+@media (max-width: 600px) {
+    .reader-card {
+        padding: 1rem;
+        border-radius: 12px;
+        margin-top: 1rem;
+    }
+
+    .reader-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .reader-pin-big {
+        font-size: 3rem;
+    }
+
+    .white-btn-small {
+        padding: 0.6rem 1rem;
+        font-size: 0.7rem;
+        min-width: unset !important;
+        /* Override inline min-width */
+    }
+
+    .lang-btn {
+        min-width: 80px !important;
+    }
+
+    /* Make canvas fully responsive */
+    #reader-canvas {
+        width: 100%;
+        height: auto;
+    }
+}
+
+/* About Section */
+/* About & Contact Section (Shared Overlay) */
+#about-section,
+#contact-section {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: transparent;
+    /* Canvas is behind it */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    /* Top z-index */
+    color: #ffffff;
+    pointer-events: none;
+    /* until active */
+    opacity: 0;
+    transition: opacity 1s ease;
+    overflow: hidden;
+    /* No Scroll */
+}
+
+#about-section.active,
+#contact-section.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.about-content {
+    max-width: 800px;
+    text-align: center;
+    padding: 2rem;
+}
+
+.about-content h1 {
+    font-family: var(--font-heading);
+    margin-bottom: 2rem;
+    font-size: 3rem;
+    letter-spacing: 2px;
+    color: #ffffff;
+    /* Explicit pure white */
+}
+
+.about-content p {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+    color: #ffffff;
+    /* Explicit pure white */
+    font-weight: 300;
+}
+
+```

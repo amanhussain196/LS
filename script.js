@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const seqGenBtn = document.getElementById('sequence-generator-btn');
     if (seqGenBtn) {
-        seqGenBtn.addEventListener('click', startTransition);
+        seqGenBtn.addEventListener('click', () => startTransition('generator'));
     }
 
     // 2. Canvas Setup
@@ -262,20 +262,39 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (elapsed > TRANSITION_DURATION) {
-                appState = 'generator';
-                const setGen = document.getElementById('sequence-generator');
-                setGen.classList.remove('hidden');
-                setGen.classList.add('active');
+                appState = 'generator'; // Keep 'generator' state for drawing background threads even if About is shown
 
-                document.querySelector('.navbar').style.display = 'none'; // Hide Top Nav
-
+                // Common Hide Actions
+                document.querySelector('.navbar').style.display = 'none';
                 const shopSection = document.getElementById('shop');
-                if (shopSection) shopSection.style.display = 'none'; // Hide Products
+                if (shopSection) shopSection.style.display = 'none';
 
                 // Force black background
                 ctx.fillStyle = '#000000';
                 ctx.fillRect(0, 0, width, height);
+
+                // Initialize Generator Threads (background animation)
                 initGeneratorThreads();
+
+                // Destination Logic
+                if (transitionDestination === 'about') {
+                    const aboutSection = document.getElementById('about-section');
+                    if (aboutSection) {
+                        aboutSection.classList.remove('hidden');
+                        setTimeout(() => aboutSection.classList.add('active'), 50);
+                    }
+                } else if (transitionDestination === 'contact') {
+                    const contactSection = document.getElementById('contact-section');
+                    if (contactSection) {
+                        contactSection.classList.remove('hidden');
+                        setTimeout(() => contactSection.classList.add('active'), 50);
+                    }
+                } else {
+                    // Default: Generator
+                    const setGen = document.getElementById('sequence-generator');
+                    setGen.classList.remove('hidden');
+                    setGen.classList.add('active');
+                }
             }
 
         } else if (appState === 'generator') {
@@ -338,9 +357,12 @@ document.addEventListener('DOMContentLoaded', () => {
         breathing += 0.005;
     }
 
-    function startTransition() {
+    let transitionDestination = 'generator'; // 'generator' or 'about'
+
+    function startTransition(txnTarget = 'generator') {
         if (appState !== 'hero') return;
         appState = 'transition';
+        transitionDestination = txnTarget;
         transitionStartTime = Date.now();
 
         // Hide UI elements smoothly via CSS
@@ -352,6 +374,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     draw();
+
+    // Event Listener for About
+    const navAboutBtn = document.getElementById('nav-about-btn');
+    if (navAboutBtn) {
+        navAboutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            startTransition('about');
+        });
+    }
+
+    // Event Listener for Contact
+    const navContactBtn = document.getElementById('nav-contact-btn');
+    if (navContactBtn) {
+        navContactBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            startTransition('contact');
+        });
+    }
+
+
 
     // --------------------------------------------------------
     // INTRO ANIMATION
@@ -383,6 +425,10 @@ document.addEventListener('DOMContentLoaded', () => {
         generateNowBtn.addEventListener('click', () => {
             if (generatorWorkspace) {
                 generatorWorkspace.classList.remove('hidden');
+
+                // Show Interface Card
+                const interfaceCard = document.getElementById('interface-card');
+                if (interfaceCard) interfaceCard.classList.remove('hidden');
 
                 // Reset views to ensure "Upload a picture" is the destination
                 const uploadTrigger = document.getElementById('upload-trigger');
@@ -500,14 +546,17 @@ document.addEventListener('DOMContentLoaded', () => {
         function setupCropEvents(canvas, ctx) {
             let isDragging = false;
             let startX, startY, lastX, lastY;
+            let initialPinchDistance = null;
+            let initialScale = 1;
 
-            const onDown = (x, y) => {
+            // Mouse Events (Desktop)
+            const onMouseDown = (x, y) => {
                 isDragging = true;
                 startX = x; startY = y;
                 lastX = cropState.x; lastY = cropState.y;
             };
 
-            const onMove = (x, y) => {
+            const onMouseMove = (x, y) => {
                 if (!isDragging) return;
                 const dx = x - startX;
                 const dy = y - startY;
@@ -516,27 +565,70 @@ document.addEventListener('DOMContentLoaded', () => {
                 drawCrop(ctx);
             };
 
-            canvas.onmousedown = (e) => onDown(e.clientX, e.clientY);
-            window.onmousemove = (e) => onMove(e.clientX, e.clientY);
-            window.onmouseup = () => isDragging = false;
+            canvas.addEventListener('mousedown', (e) => onMouseDown(e.clientX, e.clientY));
+            window.addEventListener('mousemove', (e) => onMouseMove(e.clientX, e.clientY));
+            window.addEventListener('mouseup', () => isDragging = false);
 
-            canvas.ontouchstart = (e) => {
-                if (e.touches.length === 1) onDown(e.touches[0].clientX, e.touches[0].clientY);
-            };
-            canvas.ontouchmove = (e) => {
-                if (e.touches.length === 1) {
-                    e.preventDefault();
-                    onMove(e.touches[0].clientX, e.touches[0].clientY);
-                }
-            };
-            canvas.ontouchend = () => isDragging = false;
-
-            // Simple Wheel Zoom
-            canvas.onwheel = (e) => {
+            // Wheel Zoom (Desktop)
+            canvas.addEventListener('wheel', (e) => {
                 e.preventDefault();
-                cropState.scale -= e.deltaY * 0.001;
+                const zoomSpeed = 0.0002; // Reduced sensitivity for smoother zooming
+                const newScale = cropState.scale - e.deltaY * zoomSpeed;
+                cropState.scale = Math.max(cropState.minScale, newScale);
                 drawCrop(ctx);
-            };
+            }, { passive: false });
+
+
+            // Touch Events (Mobile - Pinch & Drag)
+            canvas.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    // Single touch: Drag
+                    onMouseDown(e.touches[0].clientX, e.touches[0].clientY);
+                } else if (e.touches.length === 2) {
+                    // Double touch: Pinch Start
+                    e.preventDefault(); // Prevent page zoom
+                    isDragging = false; // Stop dragging if we were
+
+                    const t1 = e.touches[0];
+                    const t2 = e.touches[1];
+                    const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+
+                    initialPinchDistance = dist;
+                    initialScale = cropState.scale;
+                }
+            }, { passive: false });
+
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault(); // CRITICAL: Stop browser scroll/zoom
+
+                if (e.touches.length === 1 && isDragging) {
+                    // Single touch: Drag
+                    onMouseMove(e.touches[0].clientX, e.touches[0].clientY);
+                } else if (e.touches.length === 2 && initialPinchDistance) {
+                    // Double touch: Pinch Resize
+                    const t1 = e.touches[0];
+                    const t2 = e.touches[1];
+                    const currentDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+
+                    if (currentDist > 0) {
+                        const scaleFactor = currentDist / initialPinchDistance;
+                        const newScale = initialScale * scaleFactor;
+                        cropState.scale = Math.max(cropState.minScale, newScale);
+                        drawCrop(ctx);
+                    }
+                }
+            }, { passive: false });
+
+            canvas.addEventListener('touchend', (e) => {
+                // If fingers lift, reset pinch state
+                if (e.touches.length < 2) {
+                    initialPinchDistance = null;
+                }
+                // If 0 fingers, stop drag
+                if (e.touches.length === 0) {
+                    isDragging = false;
+                }
+            });
         }
 
         cropCancelBtn.addEventListener('click', () => {
@@ -707,6 +799,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btnGoReader && readerView) {
             btnGoReader.addEventListener('click', () => {
                 // Switch Views
+                // Hide wrapper card content
+                const interfaceCard = document.getElementById('interface-card');
+                if (interfaceCard) interfaceCard.classList.add('hidden');
+
                 processingView.classList.add('hidden');
                 galleryContainer.classList.add('hidden');
                 readerView.classList.remove('hidden');
@@ -727,6 +823,9 @@ document.addEventListener('DOMContentLoaded', () => {
             btnHeroReader.addEventListener('click', () => {
                 // Ensure generator workspace is shown
                 if (generatorWorkspace) generatorWorkspace.classList.remove('hidden');
+
+                const interfaceCard = document.getElementById('interface-card');
+                if (interfaceCard) interfaceCard.classList.add('hidden');
 
                 // Hide other main views including Upload
                 uploadTrigger.classList.add('hidden');
@@ -985,12 +1084,16 @@ document.addEventListener('DOMContentLoaded', () => {
             // Ensure generator workspace is visible
             if (generatorWorkspace) generatorWorkspace.classList.remove('hidden');
 
+            // Show Interface Card (as Gallery is inside it now)
+            const interfaceCard = document.getElementById('interface-card');
+            if (interfaceCard) interfaceCard.classList.remove('hidden');
+
             // Hide other main views
             uploadTrigger.classList.add('hidden');
             cropperContainer.classList.add('hidden');
             processingView.classList.add('hidden');
 
-            // Show Gallery
+            // Show Gallery (it is inside the card)
             galleryContainer.classList.remove('hidden');
             renderGallery(); // Ensure content is updated
 
@@ -1027,7 +1130,19 @@ document.addEventListener('DOMContentLoaded', () => {
         let speechUtterance = null;
 
         function initReader() {
-            // Reset UI if needed
+            // Reset UI
+            const readerSetupCard = document.getElementById('reader-setup-card');
+            const readerUploadTrigger = document.getElementById('reader-upload-trigger');
+            const readerLangSelect = document.getElementById('reader-language-select');
+            const readerInterface = document.getElementById('reader-interface');
+
+            if (readerSetupCard) readerSetupCard.classList.remove('hidden');
+            if (readerUploadTrigger) readerUploadTrigger.classList.remove('hidden');
+            if (readerLangSelect) readerLangSelect.classList.add('hidden');
+            if (readerInterface) readerInterface.classList.add('hidden');
+
+            readerStep = 0;
+            readerPlaying = false;
         }
 
         let readerTempSequenceText = null;
@@ -1118,7 +1233,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const rCanvas = document.getElementById('reader-canvas');
             if (!rCanvas || readerPins.length === 0) return;
             const ctx = rCanvas.getContext('2d');
-            ctx.clearRect(0, 0, rCanvas.width, rCanvas.height);
+
+            // Force White Background for visibility against dark UI
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, rCanvas.width, rCanvas.height);
 
             // Determine drawing limit
             // If limitStep provided, use it. Else use global readerStep.
@@ -1216,7 +1334,9 @@ document.addEventListener('DOMContentLoaded', () => {
             readerSequence = text.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
 
             if (readerSequence.length > 0) {
-                readerUploadTrigger.classList.add('hidden');
+                const readerSetupCard = document.getElementById('reader-setup-card');
+                if (readerSetupCard) readerSetupCard.classList.add('hidden');
+
                 readerInterface.classList.remove('hidden');
 
                 // Init Visualization (Assume 200 for now or max in sequence?)
