@@ -110,6 +110,7 @@
                                         <option value="2200">2200 Lines</option>
                                         <option value="2500" selected>2500 Lines</option>
                                         <option value="3000">3000 Lines</option>
+                                        <option value="3500">3500 Lines</option>
                                     </select>
                                     <button id="btn-start-gen" class="cta-button white-btn-small">Start</button>
                                     <button id="btn-reset-gen" class="cta-button white-btn-small">New Image</button>
@@ -132,85 +133,85 @@
                             </div>
                         </div>
 
-                        <!-- Reader Setup Card -->
-                        <div id="reader-setup-card" class="interface-card hidden">
-                            <h2>Sequence Reader</h2>
-                            <p class="workspace-sub">Visualize and follow your string art sequence.</p>
 
-                            <!-- Option: Upload -->
-                            <div class="upload-area" id="reader-upload-trigger"
-                                style="padding: 2rem; margin-bottom: 2rem;">
-                                <div class="upload-icon" style="font-size: 2rem;">📄</div>
-                                <p>Upload .txt Sequence</p>
-                                <input type="file" id="reader-file-upload" accept=".txt" hidden>
-                            </div>
-
-                            <!-- Language Selection -->
-                            <div id="reader-language-select" class="hidden" style="margin-bottom: 2rem;">
-                                <h4 style="margin-bottom: 1.5rem; color: #fff; font-family: var(--font-heading);">Select
-                                    Language</h4>
-                                <!-- Language Selection -->
-                                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                                    <button class="cta-button white-btn-small lang-btn" data-lang="en-US"
-                                        style="min-width: 100px;">English</button>
-                                    <button class="cta-button white-btn-small lang-btn" data-lang="te-IN"
-                                        style="min-width: 100px; opacity: 0.5; cursor: not-allowed;"
-                                        title="Coming Soon">Telugu</button>
-                                    <button class="cta-button white-btn-small lang-btn" data-lang="hi-IN"
-                                        style="min-width: 100px; opacity: 0.5; cursor: not-allowed;"
-                                        title="Coming Soon">Hindi</button>
-                                    <button class="cta-button white-btn-small lang-btn" data-lang="ta-IN"
-                                        style="min-width: 100px; opacity: 0.5; cursor: not-allowed;"
-                                        title="Coming Soon">Tamil</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Reader Interface -->
-                        <div id="reader-interface" class="hidden reader-card">
-                            <h2 class="reader-title">Sequence Reader</h2>
-
-                            <div class="reader-canvas-container">
-                                <canvas id="reader-canvas" width="350" height="350"></canvas>
-                            </div>
-
-                            <div class="reader-info-block">
-                                <span class="reader-pin-big" id="reader-pin-display">--</span>
-                                <div class="reader-label-small">Current Pin</div>
-                            </div>
-
-                            <div class="reader-controls-row">
-                                <button id="reader-prev" class="cta-button white-btn-small">Prev</button>
-                                <button id="reader-play" class="cta-button white-btn-small">Play</button>
-                                <button id="reader-next" class="cta-button white-btn-small">Next</button>
-                            </div>
-
-                            <div class="reader-slider-row">
-                                <span style="font-size: 0.8rem; color: #888;">Speed:</span>
-                                <input type="range" id="reader-speed" min="0.35" max="3" step="0.05" value="0.65"
-                                    style="accent-color: #fff;">
-                                <span id="reader-speed-val" style="font-size: 0.8rem; color: #888;">0.65x</span>
-                            </div>
-
-                            <!-- Jump to Step -->
-                            <div class="reader-slider-row" style="margin-bottom: 1rem;">
-                                <input type="number" id="reader-jump-input" placeholder="Step"
-                                    style="background: #111; border: 1px solid #333; color: white; padding: 5px; border-radius: 4px; width: 60px; text-align: center;">
-                                <button id="reader-jump-btn" class="cta-button white-btn-small"
-                                    style="padding: 5px 10px; font-size: 0.8rem;">Go</button>
-                            </div>
-
-                            <div style="margin-top: 1rem;">
-                                <span id="reader-step-status" style="color: #666; font-size: 0.8rem;">Step 0 /
-                                    0</span>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- READER VIEW -->
                     <div id="reader-view" class="hidden">
                         <div class="workspace-content" style="max-width: 600px; margin: 0 auto; text-align: center;">
-                            <!-- The original reader-setup-card and reader-interface were here -->
+                            <!-- Reader Setup Card -->
+                            <div id="reader-setup-card" class="interface-card hidden">
+                                <h2>Sequence Reader</h2>
+                                <p class="workspace-sub">Visualize and follow your string art sequence.</p>
+
+                                <!-- Option: Upload -->
+                                <div class="upload-area" id="reader-upload-trigger"
+                                    style="padding: 2rem; margin-bottom: 2rem;">
+                                    <div class="upload-icon" style="font-size: 2rem;">📄</div>
+                                    <p>Upload .txt Sequence</p>
+                                    <input type="file" id="reader-file-upload" accept=".txt" hidden>
+                                </div>
+
+                                <!-- Language Selection -->
+                                <div id="reader-language-select" class="hidden" style="margin-bottom: 2rem;">
+                                    <h4 style="margin-bottom: 1.5rem; color: #fff; font-family: var(--font-heading);">
+                                        Select
+                                        Language</h4>
+                                    <!-- Language Selection -->
+                                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                                        <button class="cta-button white-btn-small lang-btn" data-lang="en-US"
+                                            style="min-width: 100px;">English</button>
+                                        <button class="cta-button white-btn-small lang-btn" data-lang="te-IN"
+                                            style="min-width: 100px; opacity: 0.5; cursor: not-allowed;"
+                                            title="Coming Soon">Telugu</button>
+                                        <button class="cta-button white-btn-small lang-btn" data-lang="hi-IN"
+                                            style="min-width: 100px; opacity: 0.5; cursor: not-allowed;"
+                                            title="Coming Soon">Hindi</button>
+                                        <button class="cta-button white-btn-small lang-btn" data-lang="ta-IN"
+                                            style="min-width: 100px; opacity: 0.5; cursor: not-allowed;"
+                                            title="Coming Soon">Tamil</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Reader Interface -->
+                            <div id="reader-interface" class="hidden reader-card">
+                                <h2 class="reader-title">Sequence Reader</h2>
+
+                                <div class="reader-canvas-container">
+                                    <canvas id="reader-canvas" width="350" height="350"></canvas>
+                                </div>
+
+                                <div class="reader-info-block">
+                                    <span class="reader-pin-big" id="reader-pin-display">--</span>
+                                    <div class="reader-label-small">Current Pin</div>
+                                </div>
+
+                                <div class="reader-controls-row">
+                                    <button id="reader-prev" class="cta-button white-btn-small">Prev</button>
+                                    <button id="reader-play" class="cta-button white-btn-small">Play</button>
+                                    <button id="reader-next" class="cta-button white-btn-small">Next</button>
+                                </div>
+
+                                <div class="reader-slider-row">
+                                    <span style="font-size: 0.8rem; color: #888;">Speed:</span>
+                                    <input type="range" id="reader-speed" min="10" max="200" step="10" value="100"
+                                        style="accent-color: #fff;">
+                                    <span id="reader-speed-val" style="font-size: 0.8rem; color: #888;">100%</span>
+                                </div>
+
+                                <div class="reader-slider-row" style="margin-bottom: 1rem;">
+                                    <input type="number" id="reader-jump-input" placeholder="Step"
+                                        style="background: #111; border: 1px solid #333; color: white; padding: 5px; border-radius: 4px; width: 60px; text-align: center;">
+                                    <button id="reader-jump-btn" class="cta-button white-btn-small"
+                                        style="padding: 5px 10px; font-size: 0.8rem;">Go</button>
+                                </div>
+
+                                <div style="margin-top: 1rem;">
+                                    <span id="reader-step-status" style="color: #666; font-size: 0.8rem;">Step 0 /
+                                        0</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -246,7 +247,23 @@
     </section>
 
     <!-- External Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="string-art-generator.js"></script>
+
+    <!-- Redeem Code Modal -->
+    <div id="redeem-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2 style="font-family: var(--font-heading); margin-bottom: 1rem; color: #fff;">Enter Redemption Code</h2>
+            <p style="color: #ccc; margin-bottom: 1.5rem;">Enter the 10-digit code from your instruction sheet.</p>
+            <input type="text" id="redeem-code-input" placeholder="XXXXXXXXXX" maxlength="10"
+                style="width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: white; margin-bottom: 1rem; text-align: center; font-size: 1.2rem; letter-spacing: 2px;">
+            <p id="redeem-error" style="color: #ff4444; font-size: 0.9rem; margin-bottom: 1rem; display: none;"></p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button id="btn-cancel-redeem" class="cta-button white-btn-small">Cancel</button>
+                <button id="btn-confirm-redeem" class="cta-button white-btn">Redeem & Download</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Shop Section -->
     <section id="shop">
@@ -256,18 +273,19 @@
                 <!-- Product 1: Square Kit -->
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="square_thread_art_kit.png" alt="Square Thread Art Kit">
+                        <img src="SQUARE.svg" alt="Square Thread Art Kit">
+                        <div class="stamp-overlay">Coming Soon</div>
                     </div>
                     <div class="thread-overlay"></div>
                     <div class="product-info">
                         <h3>Square Thread Art Kit</h3>
                         <p class="description">Precision-cut square canvas with numbered nails and premium threads.</p>
                         <ul class="highlights">
-                            <li>DIY Friendly</li>
-                            <li>Beginner to Advanced</li>
-                            <li>Frame-ready Output</li>
+                            <li>2*2 Feet Canvas</li>
+                            <li>200 Nails</li>
+                            <li>2000m Thread</li>
                         </ul>
-                        <div class="price">$45.00</div>
+                        <div class="price">Available Soon</div>
                         <button class="buy-button">View Kit</button>
                     </div>
                 </div>
@@ -276,6 +294,7 @@
                 <div class="product-card">
                     <div class="product-image">
                         <img src="circle_thread_art_kit.png" alt="Circle Thread Art Kit">
+                        <div class="stamp-overlay">Coming Soon</div>
                     </div>
                     <div class="thread-overlay"></div>
                     <div class="product-info">
