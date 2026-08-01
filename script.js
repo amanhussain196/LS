@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn('Supabase client library not found.');
     }
 
-    let isDownloadUnlocked = false; // State for download lock
+    let isDownloadUnlocked = true; // State for download lock (Bypassed)
 
     // 1. Navigation & UI Setup
     const buyBtn = document.getElementById('buy-now-btn');
@@ -805,12 +805,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const redeemInput = document.getElementById('redeem-code-input');
         const redeemError = document.getElementById('redeem-error');
 
-        // Update Button Styling for Lock State
+        // Update Button Styling for Lock State (Bypassed)
         if (btnDownloadSeq) {
-            btnDownloadSeq.classList.add('locked-btn'); // Add red/locked style
-            // Note: Add this class in CSS or handling styling in JS
-            btnDownloadSeq.style.backgroundColor = '#ff4444';
-            btnDownloadSeq.innerText = '🔒 Download Sequence';
+            btnDownloadSeq.classList.remove('locked-btn'); 
+            btnDownloadSeq.style.backgroundColor = '';
+            btnDownloadSeq.innerText = 'Download Sequence';
         }
 
         if (btnDownloadSeq) {
@@ -1043,12 +1042,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (progressBar) progressBar.style.width = '0%';
                 if (btnSaveGallery) btnSaveGallery.disabled = true;
 
-                // Reset Lock State
-                isDownloadUnlocked = false;
+                // Reset Lock State (Bypassed)
+                isDownloadUnlocked = true;
                 if (btnDownloadSeq) {
-                    btnDownloadSeq.classList.add('locked-btn');
-                    btnDownloadSeq.style.backgroundColor = '#ff4444';
-                    btnDownloadSeq.innerText = '🔒 Download Sequence';
+                    btnDownloadSeq.classList.remove('locked-btn');
+                    btnDownloadSeq.style.backgroundColor = '';
+                    btnDownloadSeq.innerText = 'Download Sequence';
                     btnDownloadSeq.disabled = true; // Ensure disabled until generation complete
                 }
             });
@@ -1195,8 +1194,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const item = saved.find(i => i.id === id);
 
                     if (item && generatorWorkspace) {
-                        // SET UNLOCKED STATE based on Saved Item
-                        isDownloadUnlocked = !!item.unlocked;
+                        // SET UNLOCKED STATE based on Saved Item (Bypassed)
+                        isDownloadUnlocked = true;
 
                         // Update Button Visuals accordingly
                         const btnDownloadSeq = document.getElementById('btn-download-seq');
